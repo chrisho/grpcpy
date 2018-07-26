@@ -1,2 +1,2 @@
-# grpc-py
+# grpcpy
 only for support python3
