@@ -27,22 +27,24 @@ def start():
         __server.stop(0)
 
 
-def get_client_channel(host, cert_file="", server_name=""):
+def get_client_channel(host, root_file="", common_name=""):
     host = __convert_underline_to_whippletree(host)  # k8s不支持下划线，需要转成横杠
-    trusted_certs = __read_file(cert_file)
-    credentials = grpc.ssl_channel_credentials(root_certificates=bytes(trusted_certs, "utf8"))
+
+    root_certificates = __read_file(root_file)
+
+    credentials = grpc.ssl_channel_credentials(root_certificates=root_certificates)
     channel = grpc.secure_channel(
         host,
         credentials,
-        options=[('grpc.ssl_target_name_override', server_name)],
+        options=[('grpc.ssl_target_name_override', common_name)],
     )
     return channel
 
 
-def get_client_channel_local(cert_file="", server_name="", ssl=True, port="50051"):
-    host = "127.0.0.1:"+port
+def get_client_channel_local(root_file="", ssl=True, port="50051"):
+    host = "localhost:"+port
     if ssl:
-        channel = get_client_channel(host, cert_file, server_name)
+        channel = get_client_channel(host, root_file)
     else:
         channel = grpc.insecure_channel(host)
 
@@ -55,14 +57,14 @@ def __server_with_ssl(cert_file, key_file):
     certificate_chain = __read_file(cert_file)
 
     server_credentials = grpc.ssl_server_credentials(
-        [(bytes(private_key, "utf8"), bytes(certificate_chain, "utf8"))])
+        [(private_key, certificate_chain)])
 
     return server_credentials
 
 
 def __read_file(file):
     with open(file) as f:
-        c = f.read()
+        c = f.read().encode()
     return c
 
 def __convert_underline_to_whippletree(str):
