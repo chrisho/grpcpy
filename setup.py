@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="grpcpy",
-    version="0.0.1",
+    version="0.0.2",
     author="Chris Ho",
     author_email="cenne1986@qq.com",
     description="easy to use tls for grpc",
