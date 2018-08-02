@@ -8,12 +8,9 @@ __ONE_DAY_IN_SECONDS = 60 * 60 * 24
 __server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
 
-def get_server(host="[::]:50051", cert_file="", key_file="", ssl=True):
+def get_server(host="[::]:50051", cert_file="", key_file=""):
 
-    if ssl:
-        __server.add_secure_port(host, __server_with_ssl(cert_file, key_file))
-    else:
-        __server.add_insecure_port(host)
+    __server.add_secure_port(host, __server_with_ssl(cert_file, key_file))
 
     return __server
 
@@ -28,7 +25,7 @@ def start():
         __server.stop(0)
 
 
-def get_client_channel(host, root_file="", common_name=""):
+def get_client_channel(host, root_file="", server_name=""):
     host = __convert_underline_to_whippletree(host)  # k8s不支持下划线，需要转成横杠
 
     root_certificates = __read_file(root_file)
@@ -37,18 +34,14 @@ def get_client_channel(host, root_file="", common_name=""):
     channel = grpc.secure_channel(
         host,
         credentials,
-        options=[('grpc.ssl_target_name_override', common_name)],
+        options=[('grpc.ssl_target_name_override', server_name)],
     )
     return channel
 
 
-def get_client_channel_local(root_file="", ssl=True, port="50051"):
-    host = "localhost:"+port
-    if ssl:
-        channel = get_client_channel(host, root_file)
-    else:
-        channel = grpc.insecure_channel(host)
-
+def get_client_channel_local(root_file="", port="50051", server_name=""):
+    host = "127.0.0.1:"+port
+    channel = get_client_channel(host=host, root_file=root_file, server_name=server_name)
     return channel
 
 
