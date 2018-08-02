@@ -8,7 +8,8 @@ __ONE_DAY_IN_SECONDS = 60 * 60 * 24
 __server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
 
-def get_server(host, cert_file="", key_file="", ssl=True):
+def get_server(host="[::]:50051", cert_file="", key_file="", ssl=True):
+
     if ssl:
         __server.add_secure_port(host, __server_with_ssl(cert_file, key_file))
     else:
