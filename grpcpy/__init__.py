@@ -11,6 +11,7 @@ __server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 def get_server(host="[::]:50051", cert_file="", key_file=""):
 
     __server.add_secure_port(host, __server_with_ssl(cert_file, key_file))
+    print("ready to listen " + host)
 
     return __server
 
@@ -19,7 +20,7 @@ def start():
     __server.start()
     try:
         while True:
-            print("time.sleep : %d s" % __ONE_DAY_IN_SECONDS)
+            print("start to listen")
             time.sleep(__ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
         __server.stop(0)
